@@ -165,22 +165,22 @@ db.run(`
 -- 2. TABLA DE LOCACIONES (16 Registros con el nuevo formato de URL)
 CREATE TABLE locations (id INTEGER PRIMARY KEY, name TEXT, address TEXT, district_id INTEGER, type TEXT, url TEXT);
 INSERT INTO locations VALUES
-  (1,'Mist Alley 14','14 Mist Alley, North District',1,'residence','locations.emmanuelfrias.com/mist-alley-14'),
-  (2,'Night Market','88 East Avenue, East District',3,'market','locations.emmanuelfrias.com/night-market'),
-  (3,'Renard Warehouse','5 Renard Street, South District',2,'warehouse','locations.emmanuelfrias.com/renard-warehouse'),
-  (4,'Renard Post Office','12 Renard Avenue, South District',2,'postal_office','locations.emmanuelfrias.com/renard-post-office'),
-  (5,'Indigo Street 9','9 Indigo Street, North District',1,'residence','locations.emmanuelfrias.com/indigo-street-9'),
-  (6,'The Rusty Gear Pub', '32 Smoke Route, North District', 1, 'bar', 'locations.emmanuelfrias.com/the-rusty-gear-pub'),
-  (7,'Luna Heights Apartments', '77 Central Boulevard, Central District', 5, 'residence', 'locations.emmanuelfrias.com/luna-heights-apartments'),
-  (8,'Neon Horizon Casino', '8 Broad Street, East District', 3, 'entertainment', 'locations.emmanuelfrias.com/neon-horizon-casino'),
-  (9,'South Side Pharmacy', '120 Dock Road, South District', 2, 'shop', 'locations.emmanuelfrias.com/south-side-pharmacy'),
-  (10,'West End Library', '40 Scholar Way, West District', 4, 'library', 'locations.emmanuelfrias.com/west-end-library'),
-  (11,'Renard Bakery', '15 Renard Street, South District', 2, 'shop', 'locations.emmanuelfrias.com/renard-bakery'),
-  (12,'Indigo Laundry', '3 Indigo Street, North District', 1, 'shop', 'locations.emmanuelfrias.com/indigo-laundry'),
-  (13,'North District Police Station', '101 Law Avenue, North District', 1, 'government', 'locations.emmanuelfrias.com/north-district-police-station'),
-  (14,'East Side Fish Market', '2 Docks Avenue, East District', 3, 'market', 'locations.emmanuelfrias.com/east-side-fish-market'),
-  (15,'The Golden Lily Tea House', '55 Blossom St, West District', 4, 'restaurant', 'locations.emmanuelfrias.com/the-golden-lily-tea-house'),
-  (16,'Renard Flower Shop', '50 Renard Avenue, South District', 2, 'shop', 'locations.emmanuelfrias.com/renard-flower-shop');
+  (1,'Mist Alley 14','14 Mist Alley, North District',1,'residence','stolenmoon.emmanuelfrias.com/locations/locations/mist-alley-14'),
+  (2,'Night Market','88 East Avenue, East District',3,'market','stolenmoon.emmanuelfrias.com/locations/locations/night-market'),
+  (3,'Renard Warehouse','5 Renard Street, South District',2,'warehouse','stolenmoon.emmanuelfrias.com/locations/locations/renard-warehouse'),
+  (4,'Renard Post Office','12 Renard Avenue, South District',2,'postal_office','stolenmoon.emmanuelfrias.com/locations/locations/renard-post-office'),
+  (5,'Indigo Street 9','9 Indigo Street, North District',1,'residence','stolenmoon.emmanuelfrias.com/locations/locations/indigo-street-9'),
+  (6,'The Rusty Gear Pub', '32 Smoke Route, North District', 1, 'bar', 'stolenmoon.emmanuelfrias.com/locations/locations/the-rusty-gear-pub'),
+  (7,'Luna Heights Apartments', '77 Central Boulevard, Central District', 5, 'residence', 'stolenmoon.emmanuelfrias.com/locations/locations/luna-heights-apartments'),
+  (8,'Neon Horizon Casino', '8 Broad Street, East District', 3, 'entertainment', 'stolenmoon.emmanuelfrias.com/locations/locations/neon-horizon-casino'),
+  (9,'South Side Pharmacy', '120 Dock Road, South District', 2, 'shop', 'stolenmoon.emmanuelfrias.com/locations/locations/south-side-pharmacy'),
+  (10,'West End Library', '40 Scholar Way, West District', 4, 'library', 'stolenmoon.emmanuelfrias.com/locations/locations/west-end-library'),
+  (11,'Renard Bakery', '15 Renard Street, South District', 2, 'shop', 'stolenmoon.emmanuelfrias.com/locations/locations/renard-bakery'),
+  (12,'Indigo Laundry', '3 Indigo Street, North District', 1, 'shop', 'stolenmoon.emmanuelfrias.com/locations/locations/indigo-laundry'),
+  (13,'North District Police Station', '101 Law Avenue, North District', 1, 'government', 'stolenmoon.emmanuelfrias.com/locations/locations/north-district-police-station'),
+  (14,'East Side Fish Market', '2 Docks Avenue, East District', 3, 'market', 'stolenmoon.emmanuelfrias.com/locations/locations/east-side-fish-market'),
+  (15,'The Golden Lily Tea House', '55 Blossom St, West District', 4, 'restaurant', 'stolenmoon.emmanuelfrias.com/locations/locations/the-golden-lily-tea-house'),
+  (16,'Renard Flower Shop', '50 Renard Avenue, South District', 2, 'shop', 'stolenmoon.emmanuelfrias.com/locations/locations/renard-flower-shop');
 
   -- 3. TABLA DE RESIDENTES
   CREATE TABLE residents (id INTEGER PRIMARY KEY, name TEXT, address TEXT, district_id INTEGER, occupation TEXT, nationality TEXT, notes TEXT);
