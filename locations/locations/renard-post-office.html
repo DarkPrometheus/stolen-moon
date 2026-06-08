@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
   <style>
+    /* Estilos base para el terminal */
     .terminal-box {
       background: var(--bg3);
       border: 1px solid var(--border2);
@@ -61,8 +62,27 @@
       color: #d0e0f0;
       font-style: italic;
       line-height: 1.8;
-      white-space: pre-line; /* Mantiene los saltos de línea del JSON */
+      white-space: pre-line;
     }
+
+    /* NUEVOS ESTILOS PARA LA IMAGEN ADJUNTA */
+    #evidence-attachment {
+      display: none; /* Oculto por defecto */
+      margin-top: 2rem;
+      border: 1px solid var(--border2);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      text-align: center;
+      animation: fadein 1s ease both;
+    }
+
+    #evidence-image {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+
   </style>
 </head>
 <body>
@@ -144,6 +164,10 @@
       </div>
     </div>
 
+    <div id="evidence-attachment">
+      <img id="evidence-image" src="" alt="Evidence Scan: Paranormal Item">
+    </div>
+
   </div>
 
   <div class="page-footer">
@@ -158,20 +182,31 @@
     const input = document.getElementById('payment-id-input').value.trim().toUpperCase();
     const errorMsg = document.getElementById('terminal-error-msg');
     const resultDiv = document.getElementById('tracking-result');
+    const evidenceDiv = document.getElementById('evidence-attachment');
+    const evidenceImg = document.getElementById('evidence-image');
+
+    // REEMPLAZA ESTO CON LA URL DE LA IMAGEN
+    const imageUrl = '../../images/moon-flowers.png';
 
     try {
-      // Hacemos el fetch al archivo externo de paquetes
       const response = await fetch('../../packages.json');
       if (!response.ok) throw new Error("Could not load packages database.");
       
       const packagesData = await response.json();
 
-      // Buscamos si el ID existe en nuestro archivo de datos
       if (packagesData[input]) {
         const pkg = packagesData[input];
         errorMsg.style.display = 'none';
 
-        // Inyectamos los datos en el HTML
+        // LÓGICA PARA MOSTRAR LA IMAGEN AL FINAL SI EL ID COINCIDE
+        if (input === 'LN-0047-EMM') {
+          evidenceImg.src = imageUrl;
+          evidenceDiv.style.display = 'block';
+        } else {
+          evidenceDiv.style.display = 'none';
+          evidenceImg.src = ''; // Limpia la fuente
+        }
+
         document.getElementById('doc-sender').textContent = pkg.sender;
         document.getElementById('doc-destination').textContent = pkg.destination;
         document.getElementById('doc-status').textContent = pkg.status;
@@ -179,7 +214,6 @@
         document.getElementById('doc-description').textContent = pkg.description;
         document.getElementById('doc-invnote').innerHTML = pkg.invNote;
 
-        // Si tiene nota (como el caso de Emmanuel), la mostramos; si no, la ocultamos
         if (pkg.hasNote) {
           document.getElementById('doc-note').textContent = pkg.note;
           document.getElementById('container-note').style.display = 'block';
@@ -187,18 +221,23 @@
           document.getElementById('container-note').style.display = 'none';
         }
 
-        // Mostramos el contenedor y hacemos scroll suave
         resultDiv.style.display = 'block';
-        resultDiv.scrollIntoView({ behavior: 'smooth' });
+        
+        // Scroll suave hasta el final de los resultados para que se vea la imagen
+        setTimeout(() => {
+          resultDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
 
       } else {
-        // ID inválido o no encontrado
         resultDiv.style.display = 'none';
+        evidenceDiv.style.display = 'none';
         errorMsg.style.display = 'block';
       }
 
     } catch (error) {
       console.error(error);
+      resultDiv.style.display = 'none';
+      evidenceDiv.style.display = 'none';
       errorMsg.textContent = "SYSTEM ERROR: DATA VAULT UNREACHABLE.";
       errorMsg.style.display = 'block';
     }
