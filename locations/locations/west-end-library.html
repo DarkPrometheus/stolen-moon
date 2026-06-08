@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>West End Library — Lunara City PD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="case-badge">CASE #0047</div>
+      <div class="location-type">PUBLIC / ARCHIVE</div>
+    </div>
+    <a class="back-link" href="../locations-index.html">← TAKE ANOTHER TAXI</a>
+  </div>
+
+  <div class="location-header">
+    <div class="location-tag">LOCATION — WEST DISTRICT</div>
+    <div class="location-name">West End Library</div>
+    <div class="location-address">510 Archive Way</div>
+  </div>
+
+  <div class="scene">
+    Towering aisles of ancient, leather-bound books stretch into the shadows, gathering dust in the cold air. The silence here is absolute, punctuated only by the occasional, unsettling creak of old wood shifting in the dark.
+  </div>
+  
+  <img src="src='../../../../images/west-end-library.jpeg" alt="">
+
+  <div class="divider">ENVIRONMENT</div>
+
+  <div class="observation">
+    <p>Rows of reading tables sit vacant, their green shaded lamps dark and cold. The head librarian sits motionless at the main desk, staring blankly out a grand arched window at the starless, empty sky where the moon used to hang.</p>
+    <p>A meticulous check of the visitor logs and study rooms yields no results. There is no silver residue left on the pages, no signs of technical blueprints, and no evidence that the suspect ever stopped by to plan his grand scheme. This archive holds no answers for Case #0047.</p>
+  </div>
+
+  <div class="inv-note">
+    <div class="inv-icon">◈</div>
+    <div>
+      <div class="inv-label">INVESTIGATOR NOTE</div>
+      <div class="inv-text">Nothing but old paper and dead silence. The suspect has completely bypassed the West District archives. I need to head back to the SQL console and look for coordinates closer to his operational route.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-left">LUNARA CITY PD — CASE #0047</div>
+    <div class="footer-right">FIELD RECORD — 2024-03-14</div>
+  </div>
+
+</div>
+
+<script>
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const size = Math.random() > 0.75 ? 2 : 1;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*6}s;--dl:${Math.random()*6}s`;
+    s.appendChild(el);
+  }
+</script>
+
+</body>
+</html>

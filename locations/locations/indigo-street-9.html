@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9 Indigo Street — Lunara City PD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="case-badge">CASE #0047</div>
+      <div class="location-type">RESIDENCE / APARTMENT</div>
+    </div>
+    <a class="back-link" href="../locations-index.html">← TAKE ANOTHER TAXI</a>
+  </div>
+
+  <div class="location-header">
+    <div class="location-tag">LOCATION — NORTH DISTRICT</div>
+    <div class="location-name">Apartment 4B — Emmanuel's Residence</div>
+    <div class="location-address">9 Indigo Street</div>
+  </div>
+
+  <div class="scene">
+    The door sits slightly ajar. Inside, the small studio apartment is completely dark and dead silent. The air is cold, carrying a faint, sweet smell of tropical flowers and high-voltage electricity.
+  </div>
+  
+  <img src="src='../../../../images/indigo-street-9.jpeg" alt="">
+
+  <div class="divider">CRIME SCENE OBSERVATION</div>
+
+  <div class="observation">
+    <p>The apartment has been abruptly abandoned. On the main desk, precision calibration blueprints lie next to empty hardware brackets—identical to the heavy mounting gear missing from the Royal Observatory. Traces of <em>glowing silver dust</em> stain the floor tiles, leading from the window straight to the kitchen table.</p>
+    <p>Pinned to the wall is a small, worn polaroid photograph of a young woman smiling in front of a tropical coastline, with the words <em>"Cebu, Philippines"</em> handwritten on the back in elegant ink.</p>
+  </div>
+
+  <div class="document" data-label="RETRIEVED LEASE & WORK LOG">
+    <div class="document-row">
+      <span class="doc-label">TENANT NAME</span>
+      <span class="doc-value highlight">Emmanuel</span>
+    </div>
+    <div class="document-row">
+      <span class="doc-label">CURRENT OCCUPATION</span>
+      <span class="doc-value">Night Shift Maintenance Tech</span>
+    </div>
+    <div class="document-row">
+      <span class="doc-label">OFF-SITE WORKSPACE</span>
+      <span class="doc-value highlight">88 Renard Avenue (Renard Warehouse)</span>
+    </div>
+    <div class="document-row">
+      <span class="doc-label">LEASE STATUS</span>
+      <span class="doc-value" style="color: var(--red);">ABANDONED — MIDNIGHT FLIGHT</span>
+    </div>
+  </div>
+
+  <div class="inv-note">
+    <div class="inv-icon">◈</div>
+    <div>
+      <div class="inv-label">INVESTIGATOR NOTE</div>
+      <div class="inv-text">Emmanuel is our guy, and the evidence here completely incriminates him. He was working out of the <strong>Renard Warehouse</strong>, but he has already cleared out.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-left">LUNARA CITY PD — CASE #0047</div>
+    <div class="footer-right">FIELD RECORD — 2024-03-14</div>
+  </div>
+
+</div>
+
+<script>
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const size = Math.random() > 0.75 ? 2 : 1;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*6}s;--dl:${Math.random()*6}s`;
+    s.appendChild(el);
+  }
+</script>
+
+</body>
+</html>

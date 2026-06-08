@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Stolen Moon — Case #0047</title>
+</head>
+<body>
+
+<div class="stars-bg" id="stars"></div>
+
+<div class="loading-overlay" id="loading">
+  <h2>Lunara City PD</h2>
+  <div class="loading-bar"></div>
+  <p>LOADING DATABASE...</p>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="case-badge">CASE #0047</div>
+    <div class="topbar-title">The Stolen Moon</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SCHEMA PANEL -->
+  <div class="schema-panel">
+    <div class="panel-header">DATABASE SCHEMA</div>
+    <div class="schema-scroll" id="schema-scroll"></div>
+  </div>
+
+  <!-- EDITOR PANEL -->
+  <div class="editor-panel">
+    <div class="editor-area">
+
+      <div class="editor-wrapper">
+        <div class="editor-toolbar">
+          <span class="toolbar-label">SQL EDITOR</span>
+          <button class="btn-run" onclick="runSQL()">▶ RUN QUERY</button>
+        </div>
+        <textarea class="sql-textarea" id="sql-editor" spellcheck="false" placeholder="-- Write your SQL query here...
+-- Press RUN QUERY or Ctrl+Enter to execute"></textarea>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="results-area">
+        <div class="results-header">
+          <span class="results-label">RESULTS</span>
+          <span class="rows-count" id="rows-count"></span>
+        </div>
+        <div class="results-scroll" id="results-scroll">
+          <div class="result-msg">Run a query to see results.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<script>
+
+// ── SCHEMA DEFINITION ──
+const SCHEMA = [
+  {
+    name: 'districts',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'name', type: 'TEXT' },
+      { name: 'sector', type: 'TEXT' },
+    ]
+  },
+  {
+    name: 'locations',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'name', type: 'TEXT' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'district_id', type: 'INTEGER' },
+      { name: 'type', type: 'TEXT' },
+      { name: 'url', type: 'TEXT' },
+    ]
+  },
+  {
+    name: 'residents',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'name', type: 'TEXT' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'district_id', type: 'INTEGER' },
+      { name: 'occupation', type: 'TEXT' },
+      { name: 'nationality', type: 'TEXT' },
+      { name: 'notes', type: 'TEXT' },
+    ]
+  },
+  {
+    name: 'witnesses',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'name', type: 'TEXT' },
+      { name: 'location_id', type: 'INTEGER' },
+      { name: 'statement_summary', type: 'TEXT' },
+      { name: 'url', type: 'TEXT' },
+    ]
+  },
+  {
+    name: 'vendors',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'name', type: 'TEXT' },
+      { name: 'product', type: 'TEXT' },
+      { name: 'usual_location_id', type: 'INTEGER' },
+      { name: 'notes', type: 'TEXT' },
+    ]
+  },
+  {
+    name: 'incidents',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'type', type: 'TEXT' },
+      { name: 'reported_at', type: 'TEXT' },
+      { name: 'location_id', type: 'INTEGER' },
+      { name: 'description', type: 'TEXT' },
+      { name: 'status', type: 'TEXT' },
+    ]
+  },
+  {
+    name: 'packages',
+    cols: [
+      { name: 'id', type: 'INTEGER', pk: true },
+      { name: 'payment_id', type: 'TEXT' },
+      { name: 'sender_name', type: 'TEXT' },
+      { name: 'destination_country', type: 'TEXT' },
+      { name: 'sent_at', type: 'TEXT' },
+      { name: 'status', type: 'TEXT' },
+      { name: 'url', type: 'TEXT' },
+    ]
+  },
+];
+
+// ── STATE ──
+let db = null;
+
+// ── INIT DB ──
+async function initDB() {
+  const SQL = await initSqlJs({
+    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+  });
+  db = new SQL.Database();
+
+db.run(`
+  -- 1. TABLA DE DISTRITOS
+  CREATE TABLE districts (id INTEGER PRIMARY KEY, name TEXT, sector TEXT);
+  INSERT INTO districts VALUES
+    (1,'North District','North'),
+    (2,'South District','South'),
+    (3,'East District','East'),
+    (4,'West District','West'),
+    (5,'Central District','Central');
+
+-- 2. TABLA DE LOCACIONES (16 Registros con el nuevo formato de URL)
+CREATE TABLE locations (id INTEGER PRIMARY KEY, name TEXT, address TEXT, district_id INTEGER, type TEXT, url TEXT);
+INSERT INTO locations VALUES
+  (1,'Mist Alley 14','14 Mist Alley, North District',1,'residence','locations.emmanuelfrias.com/mist-alley-14'),
+  (2,'Night Market','88 East Avenue, East District',3,'market','locations.emmanuelfrias.com/night-market'),
+  (3,'Renard Warehouse','5 Renard Street, South District',2,'warehouse','locations.emmanuelfrias.com/renard-warehouse'),
+  (4,'Renard Post Office','12 Renard Avenue, South District',2,'postal_office','locations.emmanuelfrias.com/renard-post-office'),
+  (5,'Indigo Street 9','9 Indigo Street, North District',1,'residence','locations.emmanuelfrias.com/indigo-street-9'),
+  (6,'The Rusty Gear Pub', '32 Smoke Route, North District', 1, 'bar', 'locations.emmanuelfrias.com/the-rusty-gear-pub'),
+  (7,'Luna Heights Apartments', '77 Central Boulevard, Central District', 5, 'residence', 'locations.emmanuelfrias.com/luna-heights-apartments'),
+  (8,'Neon Horizon Casino', '8 Broad Street, East District', 3, 'entertainment', 'locations.emmanuelfrias.com/neon-horizon-casino'),
+  (9,'South Side Pharmacy', '120 Dock Road, South District', 2, 'shop', 'locations.emmanuelfrias.com/south-side-pharmacy'),
+  (10,'West End Library', '40 Scholar Way, West District', 4, 'library', 'locations.emmanuelfrias.com/west-end-library'),
+  (11,'Renard Bakery', '15 Renard Street, South District', 2, 'shop', 'locations.emmanuelfrias.com/renard-bakery'),
+  (12,'Indigo Laundry', '3 Indigo Street, North District', 1, 'shop', 'locations.emmanuelfrias.com/indigo-laundry'),
+  (13,'North District Police Station', '101 Law Avenue, North District', 1, 'government', 'locations.emmanuelfrias.com/north-district-police-station'),
+  (14,'East Side Fish Market', '2 Docks Avenue, East District', 3, 'market', 'locations.emmanuelfrias.com/east-side-fish-market'),
+  (15,'The Golden Lily Tea House', '55 Blossom St, West District', 4, 'restaurant', 'locations.emmanuelfrias.com/the-golden-lily-tea-house'),
+  (16,'Renard Flower Shop', '50 Renard Avenue, South District', 2, 'shop', 'locations.emmanuelfrias.com/renard-flower-shop');
+
+  -- 3. TABLA DE RESIDENTES
+  CREATE TABLE residents (id INTEGER PRIMARY KEY, name TEXT, address TEXT, district_id INTEGER, occupation TEXT, nationality TEXT, notes TEXT);
+  INSERT INTO residents VALUES
+    (1,'Aldric Voss','14 Mist Alley, North District',1,'retired','Lunaran','poor sleeper, often watches the street from his window at night'),
+    (2,'Emmanuel','9 Indigo Street 3rd floor, North District',1,NULL,'Mexican','foreign accent, little known in the neighborhood'),
+    (3,'Emmanuel Alvarez', '77 Central Boulevard Apt 4B, Central District', 5, 'Musician', 'Spanish', 'Plays guitar at late hours'),
+    (4,'Arthur Pendelton', '32 Smoke Route, North District', 1, 'Locksmith', 'Lunaran', 'Runs the Rusty Gear Pub'),
+    (5,'Sora Tanaka', '8 Broad Street, East District', 3, 'Croupier', 'Japanese', 'Works night shifts'),
+    (6,'Emmanuelle Chevalier', '15 Renard Street, South District', 2, 'Baker', 'French', 'Opens the bakery at 4 AM'),
+    (7,'Viktor Reznov', '120 Dock Road, South District', 2, 'Sailor', 'Volkovian', 'Sells mechanical parts on the side'),
+    (8,'Lily Evans', '40 Scholar Way, West District', 4, 'Librarian', 'Lunaran', 'Avid reader, knows everyone in West'),
+    (9,'Emmanuel Gomez', '3 Indigo Street, North District', 1, 'Tailor', 'Colombian', 'Works on the same street as the suspect!'),
+    (10,'Thomas Wright', '9 Indigo Street 1st floor, North District', 1, 'Plumber', 'Lunaran', 'Emmanuel’s downstairs neighbor. Complains about water dripping.'),
+    (11,'Lin Wei', '55 Blossom St, West District', 4, 'Tea Master', 'Chinese', 'Expert in herbs'),
+    (12,'Emmanuel Vance', '101 Law Avenue, North District', 1, 'Police Officer', 'Lunaran', 'Desk duty');
+
+-- 4. TABLA DE TESTIGOS (27 Registros - Sin campo URL, Aldric Voss escondido en el #14)
+CREATE TABLE witnesses (id INTEGER PRIMARY KEY, name TEXT, location_id INTEGER, statement_summary TEXT);
+INSERT INTO witnesses VALUES
+  (1, 'Garrison Vance', 12, 'Heard glass shattering near the alleyway around midnight but didn''t see anyone.'),
+  (2, 'Thomas Wright', 5, 'Heard someone dragging heavy metallic objects upstairs around 3:00 AM on the night of the incident.'),
+  (3, 'Sora Tanaka', 8, 'Saw a strange blue flash reflecting on the casino windows coming from the direction of the North District.'),
+  (4, 'Arthur Pendelton', 6, 'Swears he saw a massive shadow blocking the stars for a few seconds, then everything went black.'),
+  (5, 'Emmanuelle Chevalier', 11, 'Noticed a strange man pacing around the a Warehouse across the street two days ago.'),
+  (6, 'Reginald Croft', 7, 'Complained about a sudden drop in voltage that turned off his television at 2:30 AM.'),
+  (7, 'Beatrix Vance', 13, 'Saw three teenagers running away from the town square laughing right before the darkness.'),
+  (8, 'Cedric Diggory', 10, 'Was leaving the library late and noticed a delivery van driving without lights near Renard Ave.'),
+  (9, 'Maeve Millay', 15, 'The tea leaves in her cup pointed north, which she claims always predicts a celestial disaster.'),
+  (10, 'Silas Marner', 9, 'Claims his old grandfather clock stopped ticking exactly at 2:17 AM.'),
+  (11, 'Penny Lane', 2, 'A customer at the market dropped a silver coin that rolled into the drains, nothing else weird.'),
+  (12, 'Harlan Wade', 14, 'Smelled something like burning ozone or fireworks near the fish market around 2:00 AM.'),
+  (13, 'Genevieve Flore', 16, 'Noticed all the midnight roses in her shop closed up suddenly before the moon disappeared.'),
+  -- AQUÍ ESTÁ ALDRIC VOSS (#14) CON SU PISTA CRUCIAL
+  (14, 'Aldric Voss', 1, 'Saw a figure on the rooftops carrying something bright. Mentions having heard a street vendor shouting something strange hours before the incident.'),
+  (15, 'Alistair Finch', 6, 'Too drunk to remember anything clearly, but swears the beer tasted metallic that night.'),
+  (16, 'Tabitha Twitchit', 7, 'Her cats started howling like crazy about ten minutes before the sky went completely black.'),
+  (17, 'Balthazar Stone', 12, 'Saw a flock of birds flying erratically away from the North District shortly after midnight.'),
+  (18, 'Cordelia Gray', 10, 'Noticed the streetlamps on Renard Avenue flickering much more than usual between 1 AM and 2 AM.'),
+  (19, 'Duncan Idaho', 8, 'Lost a big bet at the roulette wheel because the power blinked right when the ball was dropping.'),
+  (20, 'Fiona Glenanne', 15, 'Saw a man in a heavy coat buying matches at the tea house, but he didn''t look suspicious.'),
+  (21, 'Gideon Prewett', 13, 'The police radio went static-heavy right around the time the emergency calls started pouring in.'),
+  (22, 'Helena Ravenclaw', 10, 'Felt a sudden, unexplained cold breeze inside the library that blew out her candle.'),
+  (23, 'Ignatius Reilly', 11, 'Blames the entire moon disappearance on a government conspiracy involving weather balloons.'),
+  (24, 'Juliet Capulet', 16, 'Was looking at the moon from her balcony when it simply blinked out of existence like a lightbulb.'),
+  (25, 'Kingsley Shacklebolt', 13, 'Reported that the compasses in the patrol cars were spinning erratically for about five minutes.'),
+  (26, 'Lavinia Whateley', 7, 'Claims she heard a low-frequency humming sound that made her windows vibrate around 2:15 AM.'),
+  (27, 'Milo Thatch', 14, 'Was tracking tides at the docks and noticed the water level dropped suddenly before stabilizing.');
+  -- 5. TABLA DE VENDEDORES
+  CREATE TABLE vendors (id INTEGER PRIMARY KEY, name TEXT, product TEXT, usual_location_id INTEGER, notes TEXT);
+  INSERT INTO vendors VALUES
+    (1,'Pico','Miniaturizer',2,'Sold 11 units to a single customer with a foreign accent the night of the incident. Paid in cash. Directed the customer toward Renard Warehouse.'),
+    (2,'Madame Zephyr', 'Tarot Cards & Potions', 2, 'Claims she predicted the darkness. Mostly sells fake luck charms.'),
+    (3,'Sprocket', 'Cybernetic Scraps', 2, 'Sells illegal tech components. Keeps an eye on Pico because he envies his inventions.'),
+    (4,'Captain Hook', 'Antique Maps & Compasses', 2, 'Sells old maritime navigation gear. Claims his compasses point to what you desire.'),
+    (5,'Zoe the Alchemist', 'Glow-in-the-dark Potions', 2, 'Her stall lights up half the market. Close friend of Pico.');
+
+  -- 6. TABLA DE INCIDENTES
+  CREATE TABLE incidents (id INTEGER PRIMARY KEY, type TEXT, reported_at TEXT, location_id INTEGER, description TEXT, status TEXT);
+  INSERT INTO incidents VALUES
+    (1,'disappearance','2026-03-14 02:17',NULL,'The moon vanished from the sky over Lunara City. No storm, no eclipse. The sky went completely dark without apparent cause.','open'),
+    (2,'petty_theft', '2026-03-14 01:10', 8, 'A customer left without paying for three bowls of spicy ramen.', 'closed'),
+    (3,'power_outage', '2026-03-14 02:30', 7, 'Sudden voltage drop reported across the entire Central District right after the main incident.', 'open');
+
+  -- 7. TABLA DE PAQUETES (100 Registros - El de Emmanuel está escondido en el #47 y no ha sido enviado)
+  CREATE TABLE packages (id INTEGER PRIMARY KEY, payment_id TEXT, sender_name TEXT, destination_country TEXT, sent_at TEXT, status TEXT);
+  -- 7. TABLA DE PAQUETES (100 Registros - El de Emmanuel está en el #47)
+  INSERT INTO packages VALUES
+    (1,'LN-0101-ABC','Oliver Queen','Star City','2026-02-01 06:00','in_transit'),
+    (2,'LN-0102-DEF','Bruce Wayne','Gotham','2026-02-02 06:05','delivered'),
+    (3,'LN-0103-GHI','Clark Kent','Metropolis','2026-02-03 06:12','in_transit'),
+    (4,'LN-0104-JKL','Diana Prince','Themyscira','2026-02-05 06:15','delivered'),
+    (5,'LN-0105-MNO','Barry Allen','Central City','2026-02-06 06:22','sorting'),
+    (6,'LN-0106-PQR','Hal Jordan','Coast City','2026-02-08 06:28','delivered'),
+    (7,'LN-0107-STU','Arthur Curry','Atlantis','2026-02-09 06:30','in_transit'),
+    (8,'LN-0108-VWX','Tony Stark','Malibu','2026-02-11 06:35','delivered'),
+    (9,'LN-0109-YZA','Steve Rogers','Brooklyn','2026-02-12 06:40','delivered'),
+    (10,'LN-0110-BCD','Natasha Romanoff','Stalingrad','2026-02-14 06:42','in_transit'),
+    (11,'LN-0111-EFG','Bruce Banner','Dayton','2026-02-15 06:45','sorting'),
+    (12,'LN-0112-HIJ','Thor Odinson','Asgard','2026-02-17 06:50','delivered'),
+    (13,'LN-0113-KLM','Clinton Barton','Iowa','2026-02-18 06:55','delivered'),
+    (14,'LN-0114-NOP','Wanda Maximoff','Sokovia','2026-02-20 06:58','in_transit'),
+    (15,'LN-0115-QRS','Peter Parker','Queens','2026-02-21 07:01','sorting'),
+    (16,'LN-0116-TUV','Stephen Strange','New York','2026-02-23 07:05','delivered'),
+    (17,'LN-0117-WXY','Carol Danvers','Boston','2026-02-24 07:08','in_transit'),
+    (18,'LN-0118-ZAB','T Challa','Wakanda','2026-02-26 07:12','delivered'),
+    (19,'LN-0119-CDE','Matt Murdock','Hell s Kitchen','2026-02-27 07:15','sorting'),
+    (20,'LN-0120-FGH','Luke Cage','Harlem','2026-02-28 07:20','delivered'),
+    (21,'LN-0121-IJK','Danny Rand','K un-Lun','2026-03-02 07:22','in_transit'),
+    (22,'LN-0122-LMN','Jessica Jones','Manhattan','2026-03-03 07:25','delivered'),
+    (23,'LN-0123-OPQ','Frank Castle','New York','2026-03-05 07:30','sorting'),
+    (24,'LN-0124-RST','Wade Wilson','Regina','2026-03-06 07:33','delivered'),
+    (25,'LN-0125-UVW','Logan Howlett','Alberta','2026-03-08 07:35','in_transit'),
+    (26,'LN-0126-XYZ','Charles Xavier','Westchester','2026-03-09 07:38','delivered'),
+    (27,'LN-0127-AAB','Scott Summers','Anchorage','2026-03-11 07:40','sorting'),
+    (28,'LN-0128-BBA','Jean Grey','Upstate NY','2026-03-12 07:42','delivered'),
+    (29,'LN-0129-CCA','Ororo Munroe','Cairo','2026-03-14 07:45','in_transit'),
+    (30,'LN-0130-DDA','Hank McCoy','Dunfee','2026-03-15 07:48','delivered'),
+    (31,'LN-0131-EEA','Remy LeBeau','New Orleans','2026-03-17 07:50','sorting'),
+    (32,'LN-0132-FFA','Anna Marie','Caldecott','2026-03-18 07:52','delivered'),
+    (33,'LN-0133-GGA','Kurt Wagner','Bavaria','2026-03-20 07:55','in_transit'),
+    (34,'LN-0134-HHA','Piotr Rasputin','Siberia','2026-03-21 07:57','delivered'),
+    (35,'LN-0135-IIA','Kitty Pryde','Deerfield','2026-03-23 08:00','sorting'),
+    (36,'LN-0136-JJA','Bobby Drake','Long Island','2026-03-24 08:02','delivered'),
+    (37,'LN-0137-KKA','Warren Worthington','Centerport','2026-03-26 08:05','in_transit'),
+    (38,'LN-0138-LLA','Emma Frost','Boston','2026-03-27 08:07','delivered'),
+    (39,'LN-0139-MMA','Reed Richards','Central City','2026-03-29 08:10','sorting'),
+    (40,'LN-0140-NNA','Sue Storm','New York','2026-03-30 08:12','delivered'),
+    (41,'LN-0141-OOA','Johnny Storm','Glenville','2026-04-01 08:15','in_transit'),
+    (42,'LN-0142-PPA','Ben Grimm','Yancy St','2026-04-02 08:18','delivered'),
+    (43,'LN-0143-QQA','Victor von Doom','Latveria','2026-04-04 08:20','sorting'),
+    (44,'LN-0144-RRA','Norman Osborn','Hartford','2026-04-05 08:22','delivered'),
+    (45,'LN-0145-SSA','Otto Octavius','Schenectady','2026-04-07 08:25','in_transit'),
+    (46,'LN-0146-TTA','Eddie Brock','San Francisco','2026-04-08 08:28','delivered'),
+    -- EL PAQUETE DE EMMANUEL (#47)
+    (47,'LN-0047-EMM','Emmanuel','Philippines','2026-04-10 08:30','sorting'),
+    (48,'LN-0148-VVA','Cletus Kasady','Brooklyn','2026-04-11 08:32','delivered'),
+    (49,'LN-0149-WWA','Adrian Toomes','Staten Island','2026-04-13 08:35','in_transit'),
+    (50,'LN-0150-XXA','Quentin Beck','Hollywood','2026-04-14 08:38','sorting'),
+    (51,'LN-0151-YYA','Max Dillon','Gramercy','2026-04-16 08:40','delivered'),
+    (52,'LN-0152-ZZA','Flint Marko','Jersey City','2026-04-17 08:42','in_transit'),
+    (53,'LN-0153-AAB','Alexei Sytsevich','Russia','2026-04-19 08:45','delivered'),
+    (54,'LN-0154-BBC','Herman Schultz','Bronx','2026-04-20 08:48','sorting'),
+    (55,'LN-0155-CCD','Mac Gargan','Yonkers','2026-04-22 08:50','delivered'),
+    (56,'LN-0156-DDE','Sergei Kravinoff','Volgograd','2026-04-23 08:52','in_transit'),
+    (57,'LN-0157-EEF','Wilson Fisk','Hell s Kitchen','2026-04-25 08:55','delivered'),
+    (58,'LN-0158-FFG','Lester Poindexter','Unknown','2026-04-26 08:57','sorting'),
+    (59,'LN-0159-GGH','Arthur Harrow','London','2026-04-28 09:00','delivered'),
+    (60,'LN-0160-HHI','Marc Spector','Chicago','2026-04-29 09:02','in_transit'),
+    (61,'LN-0161-IIJ','Steven Grant','London','2026-05-01 09:05','delivered'),
+    (62,'LN-0162-JJK','Jake Lockley','New York','2026-05-02 09:08','sorting'),
+    (63,'LN-0163-KKL','Kamala Khan','Jersey City','2026-05-04 09:10','delivered'),
+    (64,'LN-0164-LLM','Miles Morales','Brooklyn','2026-05-05 09:12','in_transit'),
+    (65,'LN-0165-MMN','Gwen Stacy','Forest Hills','2026-05-07 09:15','delivered'),
+    (66,'LN-0166-NNO','Miguel O Hara','Nueva York','2026-05-08 09:18','sorting'),
+    (67,'LN-0167-OOP','Ben Reilly','Queens','2026-05-10 09:20','delivered'),
+    (68,'LN-0168-PPQ','Kaine Parker','Houston','2026-05-11 09:22','in_transit'),
+    (69,'LN-0169-QQR','Jessica Drew','London','2026-05-13 09:25','delivered'),
+    (70,'LN-0170-RRS','Cindy Moon','Washington','2026-05-14 09:28','sorting'),
+    (71,'LN-0171-SST','Anya Corazon','Brooklyn','2026-05-16 09:30','delivered'),
+    (72,'LN-0172-TTU','Felicia Hardy','Manhattan','2026-05-17 09:32','in_transit'),
+    (73,'LN-0173-UUV','Silver Sablinova','Symkaria','2026-05-19 09:35','delivered'),
+    (74,'LN-0174-VVW','Jeanne Foucault','Paris','2026-05-20 09:38','sorting'),
+    (75,'LN-0175-WWX','Hank Pym','Nebraska','2026-05-22 09:40','delivered'),
+    (76,'LN-0176-XXY','Janet van Dyne','Cresskill','2026-05-23 09:42','in_transit'),
+    (77,'LN-0177-YYZ','Hope van Dyne','Nevada','2026-05-25 09:45','delivered'),
+    (78,'LN-0178-ZZA','Scott Lang','Coral Gables','2026-05-26 09:48','sorting'),
+    (79,'LN-0179-ABC','Cassie Lang','Los Angeles','2026-05-28 09:50','delivered'),
+    (80,'LN-0180-DEF','Kate Bishop','Manhattan','2026-05-29 09:52','in_transit'),
+    (81,'LN-0181-GHI','Eleanor Bishop','New York','2026-05-30 09:55','delivered'),
+    (82,'LN-0182-JKL','Jack Duquesne','France','2026-06-01 09:57','sorting'),
+    (83,'LN-0183-MNO','Maya Lopez','Oklahoma','2026-06-01 10:00','delivered'),
+    (84,'LN-0184-PQR','Kazi Kazimierczak','Poland','2026-06-02 10:02','in_transit'),
+    (85,'LN-0185-STU','Echo Salazar','Mexico','2026-06-02 10:05','delivered'),
+    (86,'LN-0186-VWX','William Stryker','Canada','2026-06-03 10:07','sorting'),
+    (87,'LN-0187-YZA','John Belushi','Chicago','2026-06-03 10:10','delivered'),
+    (88,'LN-0188-BCD','Dan Aykroyd','Ottawa','2026-06-04 10:12','in_transit'),
+    (89,'LN-0189-EFG','Chevy Chase','Woodstock','2026-06-04 10:15','delivered'),
+    (90,'LN-0190-HIJ','Bill Murray','Wilmette','2026-06-05 10:18','sorting'),
+    (91,'LN-0191-KLM','Harold Ramis','Chicago','2026-06-05 10:20','delivered'),
+    (92,'LN-0192-NOP','Rick Moranis','Toronto','2026-06-06 10:22','in_transit'),
+    (93,'LN-0193-QRS','Ernie Hudson','Benton','2026-06-06 10:25','delivered'),
+    (94,'LN-0194-TUV','Sigourney Weaver','Manhattan','2026-06-07 10:28','sorting'),
+    (95,'LN-0195-WXY','Annie Potts','Nashville','2026-06-07 10:30','delivered'),
+    (96,'LN-0196-ZAB','Peter Venkman','New York','2026-06-08 10:32','in_transit'),
+    (97,'LN-0197-CDE','Raymond Stantz','Bronx','2026-06-08 10:35','delivered'),
+    (98,'LN-0198-FGH','Egon Spengler','Ohio','2026-06-08 10:38','sorting'),
+    (99,'LN-0199-IJK','Winston Zeddemore','Flint','2026-06-08 10:40','delivered'),
+    (100,'LN-0200-LMN','Louis Tully','Canada','2026-06-08 10:42','in_transit');
+`);
+
+  document.getElementById('loading').style.display = 'none';
+  buildSchema();
+  buildStars();
+}
+
+// ── SCHEMA PANEL ──
+function buildSchema() {
+  const scroll = document.getElementById('schema-scroll');
+  scroll.innerHTML = SCHEMA.map(t => `
+    <div class="table-group">
+      <div class="table-name" onclick="toggleTable(this)">
+        <span class="arrow">▶</span>
+        <span>${t.name}</span>
+      </div>
+      <div class="table-cols">
+        ${t.cols.map(c => `
+          <div class="col-row">
+            <span class="col-name">${c.name}</span>
+            <span class="col-type">${c.type}</span>
+            ${c.pk ? '<span class="col-pk">PK</span>' : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleTable(el) {
+  el.classList.toggle('open');
+}
+
+// ── RUN SQL ──
+function runSQL() {
+  const query = document.getElementById('sql-editor').value.trim();
+  if (!query || !db) return;
+
+  const scroll = document.getElementById('results-scroll');
+  const rowsEl = document.getElementById('rows-count');
+
+  try {
+    const results = db.exec(query);
+
+    if (!results.length) {
+      scroll.innerHTML = '<div class="result-msg">Query executed. No rows returned.</div>';
+      rowsEl.textContent = '0 rows';
+      return;
+    }
+
+    const { columns, values } = results[0];
+    const rowCount = values.length;
+    rowsEl.textContent = rowCount + ' row' + (rowCount !== 1 ? 's' : '') + ' returned';
+
+    scroll.innerHTML = `
+      <table class="result-table">
+        <thead>
+          <tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr>
+        </thead>
+        <tbody>
+          ${values.map(row => `<tr>${row.map(v => `<td>${v === null ? '<span style="color:var(--text3)">NULL</span>' : v}</td>`).join('')}</tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    scroll.innerHTML = `<div class="result-msg error">ERROR: ${e.message}</div>`;
+    rowsEl.textContent = '';
+  }
+}
+
+// ── STARS ──
+function buildStars() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star' + (Math.random() > 0.7 ? ' big' : '');
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;--dl:${Math.random()*5}s`;
+    c.appendChild(s);
+  }
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    runSQL();
+  }
+});
+
+// ── START ──
+initDB().catch(err => {
+  document.getElementById('loading').innerHTML = `
+    <h2 style="color:var(--red)">Failed to load database</h2>
+    <p>${err.message}</p>
+  `;
+});
+</script>
+</body>
+</html>

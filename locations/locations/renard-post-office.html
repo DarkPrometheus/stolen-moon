@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renard Post Office — Lunara City PD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .terminal-box {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .terminal-input-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    .terminal-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      padding: 8px 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .terminal-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .terminal-btn {
+      background: var(--accent2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .terminal-btn:hover {
+      background: var(--accent);
+    }
+    .terminal-error {
+      color: var(--red);
+      font-size: 11px;
+      margin-top: 8px;
+      display: none;
+    }
+    #tracking-result {
+      display: none;
+      animation: fadein 0.5s ease both;
+    }
+    .note-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.15rem;
+      color: #d0e0f0;
+      font-style: italic;
+      line-height: 1.8;
+      white-space: pre-line; /* Mantiene los saltos de línea del JSON */
+    }
+  </style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="case-badge">CASE #0047</div>
+      <div class="location-type">GOVERNMENT / POSTAL</div>
+    </div>
+    <a class="back-link" href="../locations-index.html">← TAKE ANOTHER TAXI</a>
+  </div>
+
+  <div class="location-header">
+    <div class="location-tag">LOCATION — CENTRAL DISTRICT</div>
+    <div class="location-name">Renard Post Office</div>
+    <div class="location-address">210 Renard Avenue [Branch 04]</div>
+  </div>
+
+  <div class="scene">
+    A flickering green neon sign hangs over the automated self-service desks. The clerk behind the security glass is fast asleep, leaving only a low-intensity tracking terminal active for night-shift couriers.
+  </div>
+
+  <div class="divider">POSTAL TERMINAL</div>
+
+  <div class="terminal-box">
+    <div class="inv-label" style="color: var(--accent);">LUNARA POSTAL LOGISTICS // SELF-SERVICE SYSTEM</div>
+    <div class="terminal-input-group">
+      <input type="text" id="payment-id-input" class="terminal-input" placeholder="ENTER PAYMENT OR TRACKING ID (E.G. LN-XXXX-XXX)..." autocomplete="off">
+      <button type="button" class="terminal-btn" onclick="checkTrackingId()">TRACK</button>
+    </div>
+    <div id="terminal-error-msg" class="terminal-error">ERROR: TRANSACTION NOT FOUND IN CENTRAL VAULT ARCHIVE.</div>
+  </div>
+
+  <div id="tracking-result">
+    
+    <div class="observation">
+      <p>The terminal hums loudly as the mechanical drives spin up, pulling the requested manifest from the central database archive...</p>
+    </div>
+
+    <div class="document" data-label="VAULT MANIFEST RETRIEVED">
+      <div class="document-row">
+        <span class="doc-label">SENDER</span>
+        <span class="doc-value highlight" id="doc-sender">—</span>
+      </div>
+      <div class="document-row">
+        <span class="doc-label">DESTINATION</span>
+        <span class="doc-value" id="doc-destination">—</span>
+      </div>
+      <div class="document-row">
+        <span class="doc-label">PAYMENT STATUS</span>
+        <span class="doc-value" id="doc-status" style="color: var(--green);">—</span>
+      </div>
+      <div class="document-row">
+        <span class="doc-label">MANIFEST STATUS</span>
+        <span class="doc-value highlight" id="doc-manifest">—</span>
+      </div>
+      <div class="document-row">
+        <span class="doc-label">CONTENTS DESC.</span>
+        <span class="doc-value" id="doc-description">—</span>
+      </div>
+    </div>
+
+    <div id="container-note" style="display: none;">
+      <div class="divider">ATTACHED DOCUMENTATION</div>
+      <div class="document" data-label="UNSEALED LETTER ATTACHED TO PACKAGE">
+        <div id="doc-note" class="note-text"></div>
+      </div>
+    </div>
+
+    <div class="inv-note">
+      <div class="inv-icon">◈</div>
+      <div>
+        <div class="inv-label">INVESTIGATOR NOTE</div>
+        <div id="doc-invnote" class="inv-text">—</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-left">LUNARA CITY PD — CASE #0047</div>
+    <div class="footer-right">FIELD RECORD — 2024-03-14</div>
+  </div>
+
+</div>
+
+<script>
+  async function checkTrackingId() {
+    const input = document.getElementById('payment-id-input').value.trim().toUpperCase();
+    const errorMsg = document.getElementById('terminal-error-msg');
+    const resultDiv = document.getElementById('tracking-result');
+
+    try {
+      // Hacemos el fetch al archivo externo de paquetes
+      const response = await fetch('../../packages.json');
+      if (!response.ok) throw new Error("Could not load packages database.");
+      
+      const packagesData = await response.json();
+
+      // Buscamos si el ID existe en nuestro archivo de datos
+      if (packagesData[input]) {
+        const pkg = packagesData[input];
+        errorMsg.style.display = 'none';
+
+        // Inyectamos los datos en el HTML
+        document.getElementById('doc-sender').textContent = pkg.sender;
+        document.getElementById('doc-destination').textContent = pkg.destination;
+        document.getElementById('doc-status').textContent = pkg.status;
+        document.getElementById('doc-manifest').textContent = pkg.manifest;
+        document.getElementById('doc-description').textContent = pkg.description;
+        document.getElementById('doc-invnote').innerHTML = pkg.invNote;
+
+        // Si tiene nota (como el caso de Emmanuel), la mostramos; si no, la ocultamos
+        if (pkg.hasNote) {
+          document.getElementById('doc-note').textContent = pkg.note;
+          document.getElementById('container-note').style.display = 'block';
+        } else {
+          document.getElementById('container-note').style.display = 'none';
+        }
+
+        // Mostramos el contenedor y hacemos scroll suave
+        resultDiv.style.display = 'block';
+        resultDiv.scrollIntoView({ behavior: 'smooth' });
+
+      } else {
+        // ID inválido o no encontrado
+        resultDiv.style.display = 'none';
+        errorMsg.style.display = 'block';
+      }
+
+    } catch (error) {
+      console.error(error);
+      errorMsg.textContent = "SYSTEM ERROR: DATA VAULT UNREACHABLE.";
+      errorMsg.style.display = 'block';
+    }
+  }
+
+  // Animación de estrellas base
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const size = Math.random() > 0.75 ? 2 : 1;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*6}s;--dl:${Math.random()*6}s`;
+    s.appendChild(el);
+  }
+</script>
+
+</body>
+</html>

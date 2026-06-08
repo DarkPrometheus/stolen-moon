@@ -1,0 +1,322 @@
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --bg: #090c13;
+      --bg2: #0c1018;
+      --bg3: #0f1520;
+      --bg4: #131a24;
+      --border: #1c2a3a;
+      --border2: #253545;
+      --text: #c0d0e0;
+      --text2: #7090a8;
+      --text3: #405060;
+      --accent: #4a9eda;
+      --accent2: #2a6090;
+      --gold: #e8d5a3;
+      --green: #4aaa7a;
+      --red: #cc5555;
+    }
+ 
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+    }
+ 
+    /* ── STARS ── */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      background: #4a7a9a;
+      border-radius: 50%;
+      animation: tw var(--d) ease-in-out infinite var(--dl);
+    }
+    @keyframes tw {
+      0%,100% { opacity: 0.04; }
+      50% { opacity: 0.3; }
+    }
+ 
+    /* ── PAGE ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 6rem;
+      animation: fadein 1s ease both;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+ 
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .case-badge {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      border: 1px solid var(--accent2);
+      padding: 3px 10px;
+      background: var(--bg2);
+    }
+    .location-type {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      background: var(--bg2);
+    }
+    .back-link {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent); }
+ 
+    /* ── LOCATION HEADER ── */
+    .location-header {
+      margin-bottom: 2rem;
+    }
+    .location-tag {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text3);
+      margin-bottom: 0.5rem;
+    }
+    .location-name {
+      font-family: 'Crimson Pro', serif;
+      font-size: 2.4rem;
+      color: var(--gold);
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+    .location-address {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 1px;
+    }
+ 
+    /* ── SCENE ── */
+    .scene {
+      background: var(--bg2);
+      border-left: 2px solid var(--border2);
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 2rem;
+      font-family: 'Crimson Pro', serif;
+      font-size: 1rem;
+      color: var(--text2);
+      font-style: italic;
+      line-height: 1.85;
+    }
+    .scene strong {
+      color: var(--text);
+      font-style: normal;
+    }
+ 
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 2rem 0;
+      color: var(--text3);
+      font-size: 9px;
+      letter-spacing: 3px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+ 
+    /* ── CONTENT BLOCKS ── */
+ 
+    /* Testimony — someone speaks */
+    .testimony {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.05rem;
+      line-height: 1.95;
+      color: #b0c8d8;
+    }
+    .testimony p { margin-bottom: 1.4rem; }
+    .testimony p:last-child { margin-bottom: 0; }
+    .testimony em {
+      color: var(--gold);
+      font-style: normal;
+      font-weight: 600;
+    }
+    .testimony .pause {
+      display: block;
+      color: var(--text3);
+      font-size: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-style: normal;
+      letter-spacing: 1px;
+      margin: 1rem 0;
+    }
+ 
+    /* Speaker label */
+    .speaker {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      margin-bottom: 1rem;
+    }
+ 
+    /* Observation — no speaker, Jelly observes */
+    .observation {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.05rem;
+      line-height: 1.95;
+      color: var(--text2);
+      font-style: italic;
+    }
+    .observation p { margin-bottom: 1.4rem; }
+    .observation p:last-child { margin-bottom: 0; }
+    .observation em {
+      color: var(--gold);
+      font-style: normal;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+ 
+    /* Document — a physical paper/note found */
+    .document {
+      background: #0a1520;
+      border: 1px solid var(--border2);
+      padding: 1.4rem 1.6rem;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+    .document::before {
+      content: attr(data-label);
+      position: absolute;
+      top: -1px;
+      left: 0;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      padding: 2px 10px;
+      transform: translateY(-100%);
+    }
+    .document-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 0.6rem;
+      font-size: 12px;
+      align-items: baseline;
+    }
+    .document-row:last-child { margin-bottom: 0; }
+    .doc-label {
+      color: var(--text3);
+      font-size: 10px;
+      letter-spacing: 1px;
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+    .doc-value {
+      color: var(--text);
+    }
+    .doc-value.highlight {
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .doc-value.redacted {
+      background: var(--text3);
+      color: transparent;
+      user-select: none;
+      border-radius: 1px;
+      padding: 0 2px;
+    }
+    .doc-value.partial {
+      color: var(--text);
+    }
+    .doc-value.partial span.missing {
+      color: var(--text3);
+      font-style: italic;
+    }
+ 
+    /* Investigator note — Jelly's callout */
+    .inv-note {
+      margin-top: 2.5rem;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      padding: 1rem 1.2rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .inv-icon {
+      color: var(--accent);
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .inv-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+    .inv-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 0.95rem;
+      color: var(--text2);
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .inv-text strong {
+      color: var(--text);
+      font-style: normal;
+    }
+ 
+    /* ── FOOTER ── */
+    .page-footer {
+      margin-top: 4rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-left { font-size: 10px; color: var(--text3); letter-spacing: 1px; }
+    .footer-right { font-size: 10px; color: var(--text3); letter-spacing: 1px; }
+ 
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+
+    img{
+      max-width: 100%;
+      margin-top: 2rem;
+    }

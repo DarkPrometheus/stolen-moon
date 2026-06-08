@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Night Market — Lunara City PD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="case-badge">CASE #0047</div>
+      <div class="location-type">COMMERCIAL / MARKET</div>
+    </div>
+    <a class="back-link" href="../locations-index.html">← TAKE ANOTHER TAXI</a>
+  </div>
+
+  <div class="location-header">
+    <div class="location-tag">LOCATION — EAST DISTRICT</div>
+    <div class="location-name">Night Market</div>
+    <div class="location-address">Row 4, Plaza of Shadows</div>
+  </div>
+
+  <div class="scene">
+    The market is an eerie maze of canvas tents and dim lanterns. Following the blackout, most stalls have abruptly packed up, leaving behind empty wooden crates and the cold mountain air sweeping through the aisles.
+  </div>
+  
+  <img src="src='../../../../images/night-market.jpeg" alt="">
+
+  <div class="divider">ENVIRONMENT</div>
+
+  <div class="observation">
+    <p>Pico's electronics stall is completely locked down with heavy iron padlocks. The metal shutters are drawn, and there is no one here to interview in person. Only a broken neon sign overhead buzzes weakly in the dark.</p>
+    <p>Searching the physical area yields nothing but scrap wires and discarded battery casings. Any business conducted here tonight has already concluded. The vendor's official account and statements must be pulled directly from the precinct's database archive instead.</p>
+  </div>
+
+  <div class="inv-note">
+    <div class="inv-icon">◈</div>
+    <div>
+      <div class="inv-label">INVESTIGATOR NOTE</div>
+      <div class="inv-text">There is no physical lead left at the scene. I should check the <strong>vendors</strong> or <strong>witnesses</strong> table in the database to see if dispatch already logged Pico's official testimony earlier tonight.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-left">LUNARA CITY PD — CASE #0047</div>
+    <div class="footer-right">FIELD RECORD — 2024-03-14</div>
+  </div>
+
+</div>
+
+<script>
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const size = Math.random() > 0.75 ? 2 : 1;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*6}s;--dl:${Math.random()*6}s`;
+    s.appendChild(el);
+  }
+</script>
+
+</body>
+</html>

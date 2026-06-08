@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nothing Here — Lunara City PD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c13;
+      --bg2: #0c1018;
+      --border: #1c2a3a;
+      --border2: #253545;
+      --text: #c0d0e0;
+      --text2: #7090a8;
+      --text3: #405060;
+      --accent: #4a9eda;
+      --gold: #e8d5a3;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* STARS — fewer, dimmer than other pages */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      background: #4a7a9a;
+      border-radius: 50%;
+      animation: tw var(--d) ease-in-out infinite var(--dl);
+    }
+    @keyframes tw {
+      0%,100% { opacity: 0.02; }
+      50% { opacity: 0.15; }
+    }
+
+    /* CARD */
+    .card {
+      position: relative;
+      z-index: 1;
+      max-width: 420px;
+      width: 100%;
+      padding: 0 1.5rem;
+      text-align: center;
+      animation: fadein 1.8s ease both;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* STREET ILLUSTRATION — simple ASCII-ish */
+    .street-art {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+      letter-spacing: 1px;
+      opacity: 0.5;
+    }
+
+    .divider-line {
+      width: 40px;
+      height: 1px;
+      background: var(--border2);
+      margin: 0 auto 2rem;
+    }
+
+    .label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--text3);
+      margin-bottom: 1.2rem;
+    }
+
+    .main-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.6rem;
+      color: var(--text2);
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+      font-weight: 400;
+    }
+
+    .sub-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 0.95rem;
+      color: var(--text3);
+      font-style: italic;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .path-display {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.5px;
+      margin-bottom: 2.5rem;
+      display: inline-block;
+    }
+
+    .path-display span {
+      color: var(--text2);
+    }
+
+    .back-link {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text3);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="card">
+
+  <div class="street-art">
+    — — — — — — — — — — — —<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ empty street ]<br>
+    — — — — — — — — — — — —
+  </div>
+
+  <div class="divider-line"></div>
+
+  <div class="label">LUNARA CITY PD — FIELD DATABASE</div>
+
+  <div class="main-text">
+    Nothing here.<br>The street is empty.
+  </div>
+
+  <div class="sub-text">
+    No records match this location.<br>
+    Either the address doesn't exist,<br>or there's nothing worth finding here.
+  </div>
+
+  <div class="path-display">
+    locations.emmanuelfrias.com/<span id="current-path">—</span>
+  </div>
+
+  <br>
+
+  <a class="back-link" href="/">← BACK TO TAXI STATION</a>
+
+</div>
+
+<script>
+  // STARS — sparse
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 35; i++) {
+    const el = document.createElement('div');
+    el.className = 'star';
+    const size = 1;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${3+Math.random()*7}s;--dl:${Math.random()*7}s`;
+    s.appendChild(el);
+  }
+
+  // SHOW current path
+  const path = window.location.pathname.replace(/^\/|\/$/g, '');
+  if (path) {
+    document.getElementById('current-path').textContent = path;
+  }
+</script>
+
+</body>
+</html>
